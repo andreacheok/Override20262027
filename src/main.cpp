@@ -1,4 +1,10 @@
 #include "main.h"
+#include "auto.h"
+#include "autoselector.h"
+#include <cmath>
+
+pros::Controller master(pros::E_CONTROLLER_MASTER);
+
 
 void on_center_button() {
 	static bool pressed = false;
@@ -12,18 +18,24 @@ void on_center_button() {
 
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+	pros::lcd::set_text(1, "9181D");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+
 }
 
 void disabled() {}
 
+void compeition_initialize() {
+	while (true) {
+		auto_selector_update();
+		pros::delay(20);
+	}
+}
 
-void competition_initialize() {}
-
-
-void autonomous() {}
+void autonomous() {
+	run_selected_auto();
+}
 
 
 void opcontrol() {
@@ -37,11 +49,6 @@ void opcontrol() {
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
 
-		// Arcade control scheme
-		int dir = master.get_analog(ANALOG_LEFT_Y);    // Gets amount forward/backward from left joystick
-		int turn = master.get_analog(ANALOG_RIGHT_X);  // Gets the turn left/right from right joystick
-		left_mg.move(dir - turn);                      // Sets left motor voltage
-		right_mg.move(dir + turn);                     // Sets right motor voltage
-		pros::delay(20);                               // Run for 20 ms then update
+	                    
 	}
 }
