@@ -1,4 +1,4 @@
-#include "autoselector.h"
+#include "auto/autoselector.hpp"
 
 #include <atomic>
 #include <cstdint>

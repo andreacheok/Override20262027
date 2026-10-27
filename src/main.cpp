@@ -1,11 +1,8 @@
 #include "main.h"
-#include "autoselector.h"
-#include "autoroutines.h"
+#include "auto/autoselector.hpp"
+#include "auto/autoroutines.hpp"
+#include "robotconfig.h"
 
-pros::Controller master(pros::E_CONTROLLER_MASTER);
-
-pros::MotorGroup left_mg({1, -2, 3}, pros::MotorGears::blue);
-pros::MotorGroup right_mg({-4, 5, -6}, pros::MotorGears::blue);
 
 void initialize() {
 	autoselector::init();
@@ -27,12 +24,38 @@ void autonomous() {
 }
 
 void opcontrol() {
-	while (true) {
-		int forward = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-		int turn = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+	left_mg.set_brake_mode_all(pros::MotorBrake::brake);
+	right_mg.set_brake_mode_all(pros::MotorBrake::brake);
 
-		left_mg.move(forward + turn);
-		right_mg.move(forward - turn);
+	while (true) {
+		float throttle = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);   // Axis3
+		if (throttle < 5 && throttle > -5) {
+			throttle = 0;
+		}
+		throttle = throttle / 1.27f;
+
+		float turn = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);      // Axis1
+		if (turn < 5 && turn > -5) {
+			turn = 0;
+		}
+		turn = turn / 1.27f;
+
+		throttle = pow(throttle, 3) / 10000;
+		turn = pow(turn, 3) / 10000;
+
+		float leftpow = throttle - turn;
+		float rightpow = throttle + turn;
+
+		if (leftpow == 0) {
+			left_mg.brake();
+		}
+		if (rightpow == 0) {
+			right_mg.brake();
+		}
+
+		// VEXcode used volts (leftpow * 0.12); PROS uses millivolts, so multiply by 120 instead
+		left_mg.move_voltage(leftpow * 120);
+		right_mg.move_voltage(rightpow * 120);
 
 		pros::delay(20);
 	}

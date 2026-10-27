@@ -1,7 +1,7 @@
 #include "main.h"
-#include "autoroutines.h"
-#include "autoselector.h"
-#include "pid.h"
+#include "auto/autoroutines.hpp"
+#include "auto/autoselector.hpp"
+#include "utils/pid.hpp"
 
 void red_left() {
 
